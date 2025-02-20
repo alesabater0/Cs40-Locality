@@ -1,0 +1,141 @@
+/*******************************************************************************
+* Project 3 Locality
+* Comp 40 Spring 2025 
+* README
+* Author: Alejandra Sabater (asabat01), Darius-Stefan Iavorschi (diavor01)
+* Date: 2/12/25
+******************************************************************************/
+
+Acknowledgments:
+---------------
+For this project, we got help from the CS40 TAs during office hours 
+(Tamir, Sarah, Shephard, Michael, Bill,) and lab (Darya, Moises), along with 
+Mark Sheldon’s Whirlwind Tour of C and CS 40 C Idioms. We also used the C 
+Interfaces and Implementations Reference to assist with Hanson structures.
+
+Overview:
+---------------
+This project aims to efficiently and effectively transform images depending on
+the commands the user gives the program. We do this to demonstrate how cache 
+locality can impact program performance. Using different matrix architectures 
+(plain vs. blocked) and different traversal methods (row, column, and 
+block major), we can achieve significantly different time performances. 
+
+Cache lines:
+A good design minimizes cache evictions. Every time a program has to read/write
+a new image pixel, it needs to draw in an entire cache line containing the 
+specified pixel. If the elements are accessed continously, one cache line can 
+handle multiple pixel translations. If the elements are not stored continously,
+the program needs to draw in and evict multiple cache lines for its 
+read/write operations. This leads to more cache evictions and slower 
+performance. 
+
+Our program effectively takes the following arguments and performs these tasks:
+-> rotate {0, 90, 180, 270 degrees, flip horizontal or vertical, transpose}: 
+determines the angle at which we want to rotate or flip the matrix. If nothing 
+is provided on the command line or standard input, defaults to a 0 degree
+rotation.
+-> {row, col, block} major: determines the iteration used to go through the 
+image. If nothing is provided, the program defaults to map_dafult, which uses 
+a default order that has good locality. We decided that this would be row-major
+-> Time time_file: Create timing data and store the data in the file named 
+-> Filename: the input file name
+
+
+Time performances:
+-> 
+
+
+Implementation:
+---------------
+
+The UArray2b implementation allows for the following methods:
+1) UArray2b_new - Creates and returns a new blocked 2D array;
+2) UArray2b_free - Frees the memory associated with blocked 2D array;
+3) UArray2b_new_64K_block - Creates blocked 2D array using block size that fits 
+   in 64KB;
+4) UArray2b_width - Returns width of blocked 2D array;
+5) UArray2b_height - Returns height of blocked 2D array;
+6) UArray2b_size - Returns the size of each element in the blocked 2D array;
+7) UArray2b_blocksize - Returns block size of the blocked 2D array;
+8) UArray2b_at - Returns a pointer to the element at a given column and row in 
+   the blocked array;
+9) UArray2b_map - Applies a function to each element of the blocked 2D array,
+   iterating through every pixel in one block before moving on to the next one
+
+
+Architecture:
+---------------
+1) Plain Matrix
+Our plain images use our UArray2 is designed as a 1-dimensional UArray.
+The index is calculated using the formula: index = (row * uarray2->width) + 
+col, where row and col represent the coordinates we want to place the element. 
+This architectural style favors row-major traversal. Elements are not accessed
+contiguously for a column-major traversal.
+
+2) Blocked Matrix
+The UArray2b matrix is designed for efficient traversal in terms of cache 
+locality for both read and write operations no matter the rotation. 
+The elements are read and written block by block, ensuring good cache locality.
+The formula used is index = row * array2b->width * array2b->blocksize * 
+array2b->blocksize + col * array2b->blocksize * array2b->blocksize 
++ local_index, where row and col represent the coordinates we want to place 
+the element at and the local_index (the index inside the block) is calculated 
+as local_index = row % blocksize * block_size + column % blocksize.
+
+Using two structs, uarray2_methods_plain_struct for plain matrices and 
+uarray2_methods_blocked_struct for blocked matrices, we can use the same 
+interface, A2Methods_T, to access both implementations. How both structs 
+work is that we define methods accessing the UArray2_T and UArray2b_T 
+implementations. The inaccessible methods (i.e., block major traversal for 
+a plain matrix) are set to NULL. 
+
+The A2Methods_T struct is a function pointer table that provides an abstraction
+layer for working with the 2D arrays. When uarray2_methods_plain or 
+uarray2_methods_blocked is used in client code, it allows calling these 
+methods in a modular way without directly relying on UArray2_T or UArray2b_T.
+
+
+Hours:
+---------------
+The project took approximately 40 hours. 
+
+(int col, int row, A2 array, A2Methods_Object *ptr, void *cl)
+
+
+
+
+/********** new ********
+*
+ * An abstraction level for the creation of UArray2. The function will be
+ * passed to the A2Methods_T pointer table
+*
+ * Parameters:
+ * int width: the width of the newly created UArray2
+ * int height: the height of the newly created UArray2
+ * int size: the size in bytes of the UArray2 elements
+*
+ * Return: 
+ * A2Methods_UArray2
+*
+ * Expects: 
+ * None
+ *      
+ * Notes:
+ * None
+ ************************/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
