@@ -433,9 +433,8 @@
          if (rotation == 90 || rotation == 270) {
                  transImage = methods->new_with_blocksize(height, width, 
                                          sizeof(struct Pnm_rgb), blocksize);
-         } else if (rotation == 180 || rotation == 0 || 
-                 (flip_type != NULL && strcmp(flip_type, "horizontal") == 0) 
-                 || (flip_type != NULL && strcmp(flip_type, "horizontal") == 0)){
+         } 
+         else if (rotation == 180 || rotation == 0) {
                  transImage = methods->new_with_blocksize(width, height, 
                                          sizeof(struct Pnm_rgb), blocksize);
          }
@@ -506,6 +505,7 @@
                  if (strcmp(argv[i], "-row-major") == 0) {
                          SET_METHODS(uarray2_methods_plain, map_row_major, 
                                  "row-major");
+                        fprintf(stderr, "hey\n");
                  } else if (strcmp(argv[i], "-col-major") == 0) {
                          SET_METHODS(uarray2_methods_plain, map_col_major, 
                                  "column-major");
@@ -559,7 +559,7 @@
                          fprintf(stderr, "Too many arguments\n");
                          usage(argv[0]);
                  } else {
-                        
+                        fprintf(stderr, argv[i]);
                         fp = fopen(argv[i], "rb");
                         ok = 1;
                  }
