@@ -304,6 +304,27 @@
  
          *dest = *src;     
  }
+
+ static void rotate_0(int col, int row, A2Methods_UArray2 array, A2Methods_Object *ptr, void *cl)
+ {
+         /* grabbing arrays from closure */
+         struct Closure *closure = cl;
+         A2Methods_T new_array = closure->new_array;
+         A2Methods_T methods = closure->methods;
+ 
+         (void) array;
+
+         int new_row = row;
+         int new_col = col;
+ 
+         assert(!(new_col < 0 || new_col >= methods->width(new_array) ||
+         new_row < 0 || new_row >= methods->height(new_array)));
+ 
+         Pnm_rgb dest = methods->at(new_array, new_col, new_row);
+         Pnm_rgb src = ptr;
+ 
+         *dest = *src;     
+ }
  
  static void mem_cleanup(Pnm_ppm image, Pnm_ppm new_image, FILE *fp,
          CPUTime_T timer) 
@@ -316,8 +337,10 @@
  }
  
  static void rotation_flip(char *flip_type, A2Methods_mapfun *map, int rotation, int width, int height, 
-         Pnm_ppm image, Pnm_ppm new_image, CPUTime_T timer, struct Closure cl, FILE *fp)
+         Pnm_ppm image, Pnm_ppm new_image, struct Closure cl)
  {
+        fprintf(stderr, "rotation: %d\n", rotation);
+
          if (flip_type == NULL) {
                  if (rotation == 90) {
                          /* map with the called for order, array is pixel array 
@@ -337,7 +360,10 @@
                          new_image->width = height;  
                          new_image->height = width;
                  } else if (rotation == 0) {
-                         mem_cleanup(image, new_image, fp, timer);
+                        map(image->pixels, rotate_0, &cl);
+                         
+                        new_image->width = width;  
+                        new_image->height = height;
                  } 
          } else {
                  if (strcmp(flip_type, "horizontal") == 0) {
@@ -424,7 +450,7 @@
          fprintf(stderr, "Before flip\n");
  
          rotation_flip(flip_type, map, rotation, width, height, 
-                 image, new_image, timer, cl, fp);
+                 image, new_image, cl);
  
          fprintf(stderr, "After flip\n");
  
